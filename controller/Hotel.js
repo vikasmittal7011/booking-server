@@ -1,9 +1,10 @@
-const cloudinary = require("cloudinary");
-const HttpError = require("../models/http-error");
-const { validationResult } = require("express-validator");
-const { Hotel } = require("../models/Hotel");
+import { uploader } from "cloudinary";
+import { validationResult } from "express-validator";
 
-exports.createHotel = async (req, res, next) => {
+import HttpError from "../models/http-error.js";
+import { Hotel } from "../models/Hotel.js";
+
+export const createHotel = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     const errorMessages = errors.array().map((error) => error.msg);
@@ -30,7 +31,7 @@ exports.createHotel = async (req, res, next) => {
   try {
 
     let uploadPromises = images.map(async (image) => {
-      const cloudinaryResponse = await cloudinary.uploader.upload(image);
+      const cloudinaryResponse = await uploader.upload(image);
       return cloudinaryResponse.secure_url;
     });
 
@@ -69,9 +70,9 @@ exports.createHotel = async (req, res, next) => {
   } catch (err) {
     return res.json({ message: "Internal server error" });
   }
-};
+}
 
-exports.getHotels = async (req, res, next) => {
+export const getHotels = async (req, res, next) => {
   try {
     const conditions = {};
     let query = Hotel.find(conditions);
@@ -123,9 +124,9 @@ exports.getHotels = async (req, res, next) => {
   } catch (error) {
     return next(new HttpError(error.message, 500));
   }
-};
+}
 
-exports.getHotel = async (req, res, next) => {
+export const getHotel = async (req, res, next) => {
   try {
     const { id } = req.params
     const hotel = await Hotel.findById({ _id: id })
@@ -141,7 +142,7 @@ exports.getHotel = async (req, res, next) => {
   }
 }
 
-exports.deleteHotel = async (req, res, next) => {
+export const deleteHotel = async (req, res, next) => {
   try {
     const { id } = req.params
     const hotel = await Hotel.findByIdAndDelete({ _id: id })
@@ -157,7 +158,7 @@ exports.deleteHotel = async (req, res, next) => {
   }
 }
 
-exports.updateHotel = async (req, res, next) => {
+export const updateHotel = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     const errorMessages = errors.array().map((error) => error.msg);
@@ -184,7 +185,7 @@ exports.updateHotel = async (req, res, next) => {
 
     let uploadPromises = images.map(async (image) => {
       if (!image.includes("https")) {
-        const cloudinaryResponse = await cloudinary.uploader.upload(image);
+        const cloudinaryResponse = await uploader.upload(image);
         return cloudinaryResponse.secure_url;
       } else {
         return image

@@ -1,7 +1,11 @@
-const HttpError = require("../models/http-error");
-const jwt = require("jsonwebtoken");
+import HttpError from "../models/http-error.js";
+import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
+dotenv.config();
 
-module.exports = (req, res, next) => {
+const { verify } = jwt;
+
+export default (req, res, next) => {
   if (req.method === "OPTIONS") {
     return next();
   }
@@ -10,7 +14,7 @@ module.exports = (req, res, next) => {
     if (!token) {
       throw new Error("Authentication Failed!!");
     }
-    const tokenValue = jwt.verify(token, process.env.JWT_TOKEN);
+    const tokenValue = verify(token, process.env.JWT_TOKEN);
     if (tokenValue.role === "admin") {
       req.userData = { id: tokenValue.id };
       next();

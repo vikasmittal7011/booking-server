@@ -1,6 +1,6 @@
-const mongoose = require("mongoose");
+import { Schema, model } from "mongoose";
 
-const HotelSehema = mongoose.Schema(
+const HotelSehema = Schema(
     {
         title: { type: String, required: true, },
         discription: { type: String, required: true, },
@@ -32,4 +32,4 @@ HotelSehema.set("toJSON", {
     },
 });
 
-exports.Hotel = mongoose.model("Hotel", HotelSehema);
+export const Hotel = model("Hotel", HotelSehema);

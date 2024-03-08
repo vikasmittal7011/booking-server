@@ -1,9 +1,10 @@
-const express = require("express");
-const userAuth = require("../middleware/userAuth");
-const adminAuth = require("../middleware/adminAuth");
-const { createHotelBook, getHotelBookByUser, getBooks, createPayment, completePayment } = require("../controller/HotelBook");
+import { Router } from "express";
 
-const router = express.Router();
+import userAuth from "../middleware/userAuth.js";
+import adminAuth from "../middleware/adminAuth.js";
+import { createHotelBook, getHotelBookByUser, getBooks, createPayment, completePayment } from "../controller/HotelBook.js";
+
+const router = Router();
 
 router
     .get("/", userAuth, getHotelBookByUser)
@@ -12,4 +13,4 @@ router
     .post("/paymentverification", userAuth, completePayment)
     .post("/", userAuth, createHotelBook)
 
-module.exports = router;
+export default router;

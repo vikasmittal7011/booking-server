@@ -1,7 +1,7 @@
-const mongoose = require("mongoose");
-const { ObjectId } = mongoose.Schema
+import { Schema, model } from "mongoose";
+const { ObjectId } = Schema
 
-const HotelBookSechema = mongoose.Schema(
+const HotelBookSechema = Schema(
     {
         checkInDate: { type: String, required: true, },
         checkOutDate: { type: String, required: true, },
@@ -28,4 +28,4 @@ HotelBookSechema.set("toJSON", {
     },
 });
 
-exports.HotelBook = mongoose.model("Booking", HotelBookSechema);
+export const HotelBook = model("Booking", HotelBookSechema);

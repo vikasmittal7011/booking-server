@@ -1,7 +1,7 @@
-const HttpError = require("../models/http-error");
-const { User } = require("../models/User");
+import HttpError from "../models/http-error.js";
+import { User } from "../models/User.js";
 
-exports.fetchUserData = async (req, res, next) => {
+export const fetchUserData = async (req, res, next) => {
   const { id } = req.userData;
   try {
     const user = await User.findById(id, "-password");
@@ -14,9 +14,9 @@ exports.fetchUserData = async (req, res, next) => {
   } catch (err) {
     return next(new HttpError("Internal server error", 500));
   }
-};
+}
 
-exports.updateUser = async (req, res, next) => {
+export const updateUser = async (req, res, next) => {
   const { id } = req.userData;
   try {
     const user = await User.findByIdAndUpdate(
@@ -35,4 +35,4 @@ exports.updateUser = async (req, res, next) => {
   } catch (err) {
     return next(new HttpError("Internal server error", 500));
   }
-};
+}

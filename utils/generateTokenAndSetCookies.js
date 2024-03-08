@@ -1,8 +1,11 @@
-const jwt = require("jsonwebtoken");
+import pkg from 'jsonwebtoken';
+import dotenv from 'dotenv';
+const { sign } = pkg;
+dotenv.config();
 
 const generateTokenAndSetCookie = (id, role, res) => {
   try {
-    const token = jwt.sign({ id, role }, process.env.JWT_TOKEN, {
+    const token = sign({ id, role }, process.env.JWT_TOKEN, {
       expiresIn: "15d",
     });
 
@@ -17,4 +20,4 @@ const generateTokenAndSetCookie = (id, role, res) => {
   }
 };
 
-module.exports = generateTokenAndSetCookie;
+export default generateTokenAndSetCookie;

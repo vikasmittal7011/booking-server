@@ -1,10 +1,11 @@
-const express = require("express");
-const { fetchUserData, updateUser } = require("../controller/User");
-const userAuth = require("../middleware/userAuth");
-const generalAuth = require("../middleware/generalAuth");
+import { Router } from "express";
 
-const router = express.Router();
+import { fetchUserData, updateUser } from "../controller/User.js";
+import userAuth from "../middleware/userAuth.js";
+import generalAuth from "../middleware/generalAuth.js";
+
+const router = Router();
 
 router.get("/", generalAuth, fetchUserData).patch("/", userAuth, updateUser);
 
-module.exports = router;
+export default router;

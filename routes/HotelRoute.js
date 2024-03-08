@@ -1,9 +1,10 @@
-const express = require("express");
-const { createHotelValiation } = require("../validation/Hotel");
-const { createHotel, getHotels, getHotel, updateHotel, deleteHotel } = require("../controller/Hotel");
-const adminAuth = require("../middleware/adminAuth")
+import { Router } from "express";
 
-const router = express.Router();
+import createHotelValiation from "../validation/Hotel.js";
+import { createHotel, getHotels, getHotel, updateHotel, deleteHotel } from "../controller/Hotel.js";
+import adminAuth from "../middleware/adminAuth.js";
+
+const router = Router();
 
 router.get("/", getHotels)
     .get("/:id", getHotel)
@@ -11,4 +12,4 @@ router.get("/", getHotels)
     .post("/update", adminAuth, createHotelValiation, updateHotel)
     .delete("/:id", adminAuth, deleteHotel);
 
-module.exports = router;
+export default router;

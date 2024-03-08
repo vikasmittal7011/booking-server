@@ -1,20 +1,25 @@
-const express = require("express");
-const cors = require("cors");
-const path = require("path");
-require("dotenv").config();
-const cloundinary = require("cloudinary");
-const cookieparser = require("cookie-parser");
+import express, { json, urlencoded } from "express";
+import cors from "cors";
+import { dirname, resolve } from 'path';
+import dotenv from 'dotenv';
+dotenv.config();
+import { config } from "cloudinary";
+import cookieparser from "cookie-parser";
 
 
-const connection = require("./utils/database");
+import connection from "./utils/database.js";
 const app = express();
 
-const Auth = require("./routes/AuthRoute");
-const User = require("./routes/UserRoute");
-const Hotel = require("./routes/HotelRoute");
-const HotelBookRoute = require("./routes/HotelBookRoute");
+import Auth from "./routes/AuthRoute.js";
+import User from "./routes/UserRoute.js";
+import Hotel from "./routes/HotelRoute.js";
+import HotelBookRoute from "./routes/HotelBookRoute.js";
+import { fileURLToPath } from "url";
 
 const PORT = process.env.PORT || 8080;
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 connection()
   .then(() => {
@@ -24,8 +29,8 @@ connection()
     console.log(err);
   });
 
-app.use(express.json({ limit: "50mb" }));
-app.use(express.urlencoded({ extended: true }));
+app.use(json({ limit: "50mb" }));
+app.use(urlencoded({ extended: true }));
 app.use(cookieparser());
 app.use(
   cors({
@@ -34,8 +39,8 @@ app.use(
     origin: "http://localhost:3000", credentials: true
   })
 );
-app.use(express.json());
-app.use(express.static(path.resolve(__dirname, "build")));
+app.use(json());
+app.use(express.static(resolve(__dirname, "build")));
 app.use((req, res, next) => {
   // res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader(
@@ -46,7 +51,7 @@ app.use((req, res, next) => {
   next();
 });
 
-cloundinary.config({
+config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_PUBLIC,
   api_secret: process.env.CLOUDINARY_API_SECRET,
@@ -58,7 +63,7 @@ app.use("/api/hotel", Hotel);
 app.use("/api/booking", HotelBookRoute);
 
 app.get("*", (req, res) => {
-  res.sendFile(path.resolve("build", "index.html"));
+  res.sendFile(resolve("build", "index.html"));
 });
 
 app.use((req, res, next) => {

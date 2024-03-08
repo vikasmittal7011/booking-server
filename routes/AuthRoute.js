@@ -1,15 +1,8 @@
-const express = require("express");
-const {
-  loginUser,
-  createUser,
-  resetPasswordRequest,
-  resetPassword,
-  sendOtp,
-  logoutUser,
-} = require("../controller/Auth");
-const { createUserValiation } = require("../validation/Auth");
+import { Router } from "express";
+import { loginUser, createUser, resetPasswordRequest, resetPassword, sendOtp, logoutUser } from "../controller/Auth.js";
+import createUserValiation from "../validation/Auth.js";
 
-const router = express.Router();
+const router = Router();
 
 router
   .post("/", createUserValiation, createUser)
@@ -19,4 +12,4 @@ router
   .post("/reset-password-request", resetPasswordRequest)
   .post("/reset-password", resetPassword);
 
-module.exports = router;
+export default router;

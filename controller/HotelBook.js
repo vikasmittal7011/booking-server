@@ -1,8 +1,11 @@
-const { HotelBook } = require("../models/HotelBook");
-const { instance } = require("../utils/razorPayInstance ");
-const crypto = require('crypto');
+import { createHmac } from 'crypto';
+import dotenv from 'dotenv';
+dotenv.config();
 
-exports.createHotelBook = async (req, res) => {
+import { HotelBook } from "../models/HotelBook.js";
+import { instance } from "../utils/razorPayInstance.js";
+
+export const createHotelBook = async (req, res) => {
 
   let {
     contact, checkIn, checkOut, guest, hotel, totalAmount, paymentMethod
@@ -37,9 +40,9 @@ exports.createHotelBook = async (req, res) => {
   } catch (err) {
     return res.json({ message: err.message })
   }
-};
+}
 
-exports.getBooks = async (req, res, next) => {
+export const getBooks = async (req, res, next) => {
   try {
 
     const booking = await HotelBook.find().sort({ createdAt: -1 }).populate("hotel user")
@@ -51,7 +54,7 @@ exports.getBooks = async (req, res, next) => {
   }
 }
 
-exports.getHotelBookByUser = async (req, res, next) => {
+export const getHotelBookByUser = async (req, res) => {
   try {
     const { id } = req.userData
     const book = await HotelBook.find({ user: id }).sort({ createdAt: -1 }).populate("hotel user")
@@ -63,7 +66,7 @@ exports.getHotelBookByUser = async (req, res, next) => {
   }
 }
 
-exports.createPayment = async (req, res) => {
+export const createPayment = async (req, res) => {
   try {
     const options = {
       amount: Number(req.body.totalAmount * 100),
@@ -78,7 +81,7 @@ exports.createPayment = async (req, res) => {
   }
 }
 
-exports.completePayment = async (req, res) => {
+export const completePayment = async (req, res) => {
   let {
     contact, checkIn, checkOut, guest, hotel, totalAmount, paymentMethod
   } = req.query;
@@ -93,7 +96,7 @@ exports.completePayment = async (req, res) => {
 
     const body = razorpay_order_id + "|" + razorpay_payment_id
 
-    const expectedsignature = crypto.createHmac("sha256", process.env.RAZOR_PAY_SECRET).update(body.toString()).digest("hex")
+    const expectedsignature = createHmac("sha256", process.env.RAZOR_PAY_SECRET).update(body.toString()).digest("hex")
 
     const isAuth = expectedsignature === razorpay_signature
 

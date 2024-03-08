@@ -31,4 +31,4 @@ const template = (OTP_CODE) => {
 `;
 };
 
-module.exports = template;
+export default template;

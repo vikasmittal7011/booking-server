@@ -1,6 +1,6 @@
-const mongoose = require("mongoose");
+import { Schema, model } from "mongoose";
 
-const UserSehema = mongoose.Schema(
+const UserSehema = Schema(
   {
     name: { type: String, required: true, },
     email: { type: String, required: true, unique: true },
@@ -24,4 +24,4 @@ UserSehema.set("toJSON", {
   },
 });
 
-exports.User = mongoose.model("User", UserSehema);
+export const User = model("User", UserSehema);

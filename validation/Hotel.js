@@ -1,6 +1,6 @@
-const { check } = require("express-validator");
+import { check } from "express-validator";
 
-exports.createHotelValiation = [
+const createHotelValiation = [
   check("title").not().isEmpty().withMessage("Enter name correctly"),
   check("discription").not().isEmpty().withMessage("Enter discription correctly"),
   check("extraInfo").not().isEmpty().withMessage("Enter extraInfo correctly"),
@@ -14,3 +14,5 @@ exports.createHotelValiation = [
   check("pin").not().isEmpty().withMessage("Enter pin correctly"),
   check("country").not().isEmpty().withMessage("Enter country correctly"),
 ];
+
+export default createHotelValiation

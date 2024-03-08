@@ -1,17 +1,21 @@
-const { validationResult } = require("express-validator");
-const jwt = require("jsonwebtoken");
-const bcrypt = require("bcryptjs");
+import { validationResult } from "express-validator";
+import jwt from 'jsonwebtoken';
+import bcryptjs from 'bcryptjs';
+import dotenv from 'dotenv';
+dotenv.config();
 
-const { User } = require("../models/User");
-const HttpError = require("../models/http-error");
-const transporter = require("../utils/nodemailer");
-const userOTPTemplate = require("../utils/userOTPTemplate")
-const generateTokenAndSetCookie = require("../utils/generateTokenAndSetCookies");
+import { User } from "../models/User.js";
+import HttpError from "../models/http-error.js";
+import transporter from "../utils/nodemailer.js";
+import userOTPTemplate from "../utils/userOTPTemplate.js";
+import generateTokenAndSetCookie from "../utils/generateTokenAndSetCookies.js";
 
+const { sign, verify } = jwt;
+const { hash, compare } = bcryptjs;
 const jwt_key = process.env.JWT_TOKEN;
 const salt = process.env.SALT;
 
-exports.sendOtp = async (req, res, next) => {
+export const sendOtp = async (req, res, next) => {
   const { email } = req.body
 
   const otp = Math.round(Math.random() * 900000) + 100000
@@ -26,7 +30,7 @@ exports.sendOtp = async (req, res, next) => {
         );
       }
 
-      const info = transporter.sendMail({
+      const info = transporter({
         from: {
           name: "Tour & Travals",
           address: "myshop@gmail.com"
@@ -50,7 +54,7 @@ exports.sendOtp = async (req, res, next) => {
   }
 }
 
-exports.createUser = async (req, res, next) => {
+export const createUser = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     const errorMessages = errors.array().map((error) => error.msg);
@@ -58,7 +62,7 @@ exports.createUser = async (req, res, next) => {
   }
   let user;
   try {
-    bcrypt.hash(req.body.password, parseInt(salt)).then(async (pass) => {
+    hash(req.body.password, parseInt(salt)).then(async (pass) => {
       const createUser = { ...req.body, password: pass };
       user = await User.create(createUser);
       const token = generateTokenAndSetCookie(user.id, user.role, res);
@@ -71,9 +75,9 @@ exports.createUser = async (req, res, next) => {
   } catch (err) {
     return next(new HttpError("Internal server error", 500));
   }
-};
+}
 
-exports.loginUser = async (req, res, next) => {
+export const loginUser = async (req, res, next) => {
   let { password } = req.body;
   let user, comparePassword, token;
   try {
@@ -83,7 +87,7 @@ exports.loginUser = async (req, res, next) => {
       return next(new HttpError("Enter valid credential", 404));
     }
 
-    comparePassword = await bcrypt.compare(password, user.password);
+    comparePassword = await compare(password, user.password);
 
     if (!comparePassword) {
       return next(new HttpError("Enter valid credential", 404));
@@ -95,18 +99,18 @@ exports.loginUser = async (req, res, next) => {
   } catch (err) {
     return next(new HttpError("Internal server error", 500));
   }
-};
+}
 
-exports.logoutUser = (req, res, next) => {
+export const logoutUser = async (req, res, next) => {
   try {
     res.cookie("jwt", "");
     res.json({ message: "Logout successfully", success: true });
   } catch (err) {
     return next(new HttpError(err.message, 500));
   }
-};
+}
 
-exports.resetPasswordRequest = async (req, res, next) => {
+export const resetPasswordRequest = async (req, res, next) => {
   let { email } = req.body;
   try {
     let user = await User.findOne({ email: email });
@@ -115,13 +119,13 @@ exports.resetPasswordRequest = async (req, res, next) => {
       return next(new HttpError("User is not exist, check your email", 404));
     }
 
-    const token = jwt.sign({ email: email }, jwt_key, { expiresIn: "5m" });
+    const token = sign({ email: email }, jwt_key, { expiresIn: "5m" });
 
     user.passwordResetToken = token;
 
     await user.save();
 
-    const info = await transporter.sendMail({
+    const info = await transporter({
       from: "myshop@gmail.com",
       to: email,
       subject: "Reset Your Password!!",
@@ -138,19 +142,19 @@ exports.resetPasswordRequest = async (req, res, next) => {
   } catch (err) {
     return next(new HttpError("Internal server error", 500));
   }
-};
+}
 
-exports.resetPassword = async (req, res, next) => {
+export const resetPassword = async (req, res, next) => {
   try {
     const { token, password } = req.body;
-    const tokenValue = jwt.verify(token, process.env.JWT_TOKEN);
+    const tokenValue = verify(token, process.env.JWT_TOKEN);
     const { email } = tokenValue;
     let user;
     user = await User.findOne({ email: email });
     if (token !== user.passwordResetToken) {
       return next(new HttpError("Bad Request, failed to reset password", 422));
     }
-    bcrypt.hash(password, parseInt(salt)).then(async (pass) => {
+    hash(password, parseInt(salt)).then(async (pass) => {
       user.password = pass;
       user.passwordResetToken = "";
       await user.save();
@@ -161,4 +165,4 @@ exports.resetPassword = async (req, res, next) => {
   } catch (err) {
     return next(new HttpError(err.message + ". Plase resend request.", 500));
   }
-};
+}
