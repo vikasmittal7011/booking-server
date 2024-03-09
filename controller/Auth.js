@@ -9,6 +9,7 @@ import HttpError from "../models/http-error.js";
 import transporter from "../utils/nodemailer.js";
 import userOTPTemplate from "../utils/userOTPTemplate.js";
 import generateTokenAndSetCookie from "../utils/generateTokenAndSetCookies.js";
+import generateOTPTokenAndSetCookie from "../utils/generateOTPTokenAndSetCookies.js";
 
 const { sign, verify } = jwt;
 const { hash, compare } = bcryptjs;
@@ -30,18 +31,20 @@ export const sendOtp = async (req, res, next) => {
         );
       }
 
-      const info = transporter({
+      const info = transporter.sendMail({
         from: {
-          name: "Tour & Travals",
-          address: "myshop@gmail.com"
+          name: "Vikey's Holidays",
+          address: "workvikas200229@gmail.com"
         },
         to: email,
         subject: "Otp verification",
         html: userOTPTemplate(otp),
       });
 
+      const optToken = generateOTPTokenAndSetCookie(otp, res)
+
       if (info) {
-        res.json({ success: true, otp });
+        res.json({ success: true, optToken });
       } else {
         res.json({ message: "Email not send, try again later!!" });
       }
@@ -50,7 +53,7 @@ export const sendOtp = async (req, res, next) => {
       res.json({ message: "Enter a valid email" })
     }
   } catch (err) {
-    return next(new HttpError("Internal server error", 500));
+    return next(new HttpError(err.message, 500));
   }
 }
 
@@ -66,6 +69,7 @@ export const createUser = async (req, res, next) => {
       const createUser = { ...req.body, password: pass };
       user = await User.create(createUser);
       const token = generateTokenAndSetCookie(user.id, user.role, res);
+      res.cookie("otp", "");
       return res.json({
         success: true,
         token,

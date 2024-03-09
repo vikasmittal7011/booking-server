@@ -35,8 +35,9 @@ app.use(cookieparser());
 app.use(
   cors({
     exposedHeaders: ["X-Total-Count"],
-    // origin: "https://hotelmanagement-sq75.onrender.com", credentials: true
-    origin: "http://localhost:3000", credentials: true
+    // origin: "https://hotelmanagement-sq75.onrender.com",
+    origin: ["http://localhost:3000", "http://127.0.0.1:5173"],
+    credentials: true
   })
 );
 app.use(json());
@@ -76,7 +77,7 @@ app.use((error, req, res, next) => {
   }
   res
     .status(error.errorCode || 500)
-    .json({ message: error.message || "Unknow error accour" || error.message });
+    .json({ message: error.message || error.message });
 });
 
 app.listen(PORT);
