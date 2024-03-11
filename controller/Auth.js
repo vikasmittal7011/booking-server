@@ -129,11 +129,11 @@ export const resetPasswordRequest = async (req, res, next) => {
 
     await user.save();
 
-    const info = await transporter({
+    const info = await transporter.sendMail({
       from: "myshop@gmail.com",
       to: email,
       subject: "Reset Your Password!!",
-      html: `<p>Click <a href="https://hotelmanagement-sq75.onrender.com/reset-password?token=${token}">here</a> to reset your password!!</p>`,
+      html: `<p>Click <a href="http://localhost:3000/login/reset-password?token=${token}">here</a> to reset your password!!</p>`,
     });
 
     if (info) {
@@ -144,7 +144,7 @@ export const resetPasswordRequest = async (req, res, next) => {
       message: "Failed to send email please try again later",
     });
   } catch (err) {
-    return next(new HttpError("Internal server error", 500));
+    return next(new HttpError(err.message, 500));
   }
 }
 
@@ -152,6 +152,9 @@ export const resetPassword = async (req, res, next) => {
   try {
     const { token, password } = req.body;
     const tokenValue = verify(token, process.env.JWT_TOKEN);
+    if (!tokenValue) {
+      return next(new HttpError("Request Time, Reset Request Again!!", 401))
+    }
     const { email } = tokenValue;
     let user;
     user = await User.findOne({ email: email });
@@ -167,6 +170,6 @@ export const resetPassword = async (req, res, next) => {
       });
     });
   } catch (err) {
-    return next(new HttpError(err.message + ". Plase resend request.", 500));
+    return next(new HttpError("Request Time Out, Send Request Again!!", 500));
   }
 }

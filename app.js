@@ -15,6 +15,7 @@ import User from "./routes/UserRoute.js";
 import Hotel from "./routes/HotelRoute.js";
 import HotelBookRoute from "./routes/HotelBookRoute.js";
 import { fileURLToPath } from "url";
+import HttpError from "./models/http-error.js";
 
 const PORT = process.env.PORT || 8080;
 
@@ -35,7 +36,6 @@ app.use(cookieparser());
 app.use(
   cors({
     exposedHeaders: ["X-Total-Count"],
-    // origin: "https://hotelmanagement-sq75.onrender.com",
     origin: ["http://localhost:3000", "http://127.0.0.1:5173"],
     credentials: true
   })
@@ -63,9 +63,9 @@ app.use("/api/user", User);
 app.use("/api/hotel", Hotel);
 app.use("/api/booking", HotelBookRoute);
 
-app.get("*", (req, res) => {
-  res.sendFile(resolve("build", "index.html"));
-});
+// app.get("*", (req, res) => {
+//   res.sendFile(resolve("build", "index.html"));
+// });
 
 app.use((req, res, next) => {
   next(new HttpError("Not route found", 404));
