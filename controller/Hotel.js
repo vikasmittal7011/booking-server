@@ -92,9 +92,9 @@ export const getHotels = async (req, res, next) => {
     let query = Hotel.find(conditions);
     let totalHotelQuery = Hotel.find(conditions);
 
-    if (req.query.title) {
-      query = query.find({ title: { $regex: req.query.title, $options: "i" } });
-      totalHotelQuery = Hotel.find({ title: { $regex: req.query.title, $options: "i" } });
+    if (req.query.name) {
+      query = query.find({ name: { $regex: req.query.name, $options: "i" } });
+      totalHotelQuery = Hotel.find({ name: { $regex: req.query.name, $options: "i" } });
     }
 
     if (req.query.location) {
@@ -117,6 +117,34 @@ export const getHotels = async (req, res, next) => {
       });
     }
 
+    if (req.query.type) {
+      query = query.find({ type: { $in: req.query.type.split(",") } });
+      totalHotelQuery = totalHotelQuery.find({
+        type: { $in: req.query.type.split(",") },
+      });
+    }
+
+    if (req.query.perks) {
+      query = query.find({ perks: { $in: req.query.perks.split(",") } });
+      totalHotelQuery = totalHotelQuery.find({
+        perks: { $in: req.query.perks.split(",") },
+      });
+    }
+
+    if (req.query.star) {
+      query = query.find({ star: { $in: req.query.star.split(",") } });
+      totalHotelQuery = totalHotelQuery.find({
+        star: { $in: req.query.star.split(",") },
+      });
+    }
+
+    if (req.query.price) {
+      query = query.find({ discountedPrice: { $lte: req.query.price } });
+      totalHotelQuery = totalHotelQuery.find({
+        discountedPrice: { $lte: req.query.price },
+      });
+    }
+
     if (req.query._sort && req.query._order) {
       query = query.sort({ [req.query._sort]: req.query._order });
     }
@@ -132,8 +160,7 @@ export const getHotels = async (req, res, next) => {
       totalHotelQuery.countDocuments()
     ]);
 
-    res.set("X-Total-Count", totalDocs);
-    res.json({ success: true, hotels: docs });
+    res.json({ success: true, hotels: docs, totalDocsCount: totalDocs });
 
   } catch (error) {
     return next(new HttpError(error.message, 500));
