@@ -1,14 +1,12 @@
 import { Schema, model } from "mongoose";
+const { ObjectId } = Schema;
 
 const HotelSehema = Schema(
     {
-        title: { type: String, required: true, },
+        owner: { type: ObjectId, required: true, ref: "User", },
+        name: { type: String, required: true, },
         discription: { type: String, required: true, },
         extraInfo: { type: String, required: true, },
-        price: { type: Number, required: true, },
-        maxGuests: { type: Number, required: true, },
-        checkIn: { type: String, required: true, },
-        checkOut: { type: String, required: true, },
         perks: [{ type: String, required: true, }],
         photos: [{ type: String, required: true, }],
         street: { type: String, required: true, },
@@ -16,6 +14,14 @@ const HotelSehema = Schema(
         state: { type: String, required: true, },
         pin: { type: Number, required: true, },
         country: { type: String, required: true, },
+        adultCount: { type: Number, required: true, default: 1 },
+        childCount: { type: Number, required: true, default: 0 },
+        star: { type: Number, required: true, default: 0 },
+        type: { type: String, required: true, },
+        basePrice: { type: Number, required: true, },
+        discount: { type: Number, required: true, default: 0 },
+        discountedPrice: { type: Number, required: true, },
+        mapLocation: { type: String, required: true, },
     },
     { timestamps: true }
 );

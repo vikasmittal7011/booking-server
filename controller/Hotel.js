@@ -5,6 +5,7 @@ import HttpError from "../models/http-error.js";
 import { Hotel } from "../models/Hotel.js";
 
 export const createHotel = async (req, res, next) => {
+  console.log(req.userData.id)
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     const errorMessages = errors.array().map((error) => error.msg);
@@ -13,19 +14,22 @@ export const createHotel = async (req, res, next) => {
 
   let {
     images,
-    title,
+    name,
     discription,
     extraInfo,
-    price,
-    maxGuests,
-    checkIn,
-    checkOut,
     street,
     city,
     state,
     pin,
     country,
-    perk
+    perks,
+    adultCount,
+    childCount,
+    star,
+    type,
+    basePrice,
+    discount,
+    mapLocation,
   } = req.body;
 
   try {
@@ -35,24 +39,33 @@ export const createHotel = async (req, res, next) => {
       return cloudinaryResponse.secure_url;
     });
 
+    const price = Math.round(
+      +basePrice * (1 - +discount / 100)
+    );
+
     const uploadedImages = await Promise.all(uploadPromises);
 
     if (uploadedImages.length === images.length) {
       const newHotel = {
-        title,
+        owner: req.userData.id,
+        name,
         discription,
         extraInfo,
-        price: +price,
-        maxGuests: +maxGuests,
-        checkIn,
-        checkOut,
         street,
         city,
         state,
         pin: +pin,
         country,
         photos: uploadedImages,
-        perks: perk
+        perks: perks,
+        adultCount: +adultCount,
+        childCount: +childCount,
+        star,
+        type,
+        mapLocation,
+        basePrice: +basePrice,
+        discount: +discount,
+        discountedPrice: price
       };
 
 
@@ -68,7 +81,8 @@ export const createHotel = async (req, res, next) => {
     }
 
   } catch (err) {
-    return res.json({ message: "Internal server error" });
+    console.log(err)
+    return res.json({ message: err.message });
   }
 }
 
