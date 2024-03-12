@@ -11,7 +11,7 @@ router.get("/", getHotels)
     .get("/owner/hotels", generalAuth, fetchOwnerHotels)
     .get("/:id", getHotel)
     .post("/", generalAuth, createHotelValiation, createHotel)
-    .post("/update", adminAuth, createHotelValiation, updateHotel)
+    .post("/update", generalAuth, createHotelValiation, updateHotel)
     .delete("/:id", adminAuth, deleteHotel);
 
 export default router;

@@ -197,21 +197,30 @@ export const updateHotel = async (req, res, next) => {
 
   let {
     images,
-    title,
+    name,
     discription,
     extraInfo,
-    price,
-    maxGuests,
-    checkIn,
-    checkOut,
     street,
     city,
     state,
     pin,
     country,
-    perk
+    perks,
+    adultCount,
+    childCount,
+    star,
+    type,
+    basePrice,
+    discount,
+    mapLocation,
   } = req.body;
   try {
+
+    const rigthUser = await Hotel.findOne({ owner: req.userData.id });
+
+    if (!rigthUser) {
+      return next(new HttpError("You can't edit this hotel", 401))
+    }
 
     let uploadPromises = images.map(async (image) => {
       if (!image.includes("https")) {
@@ -222,23 +231,31 @@ export const updateHotel = async (req, res, next) => {
       }
     });
 
+    const price = Math.round(
+      +basePrice * (1 - +discount / 100)
+    );
+
     const uploadedImages = await Promise.all(uploadPromises);
 
     const updatedHotel = {
-      title,
+      name,
       discription,
       extraInfo,
-      price: +price,
-      maxGuests: +maxGuests,
-      checkIn,
-      checkOut,
       street,
       city,
       state,
       pin: +pin,
       country,
       photos: uploadedImages,
-      perks: perk
+      perks: perks,
+      adultCount: +adultCount,
+      childCount: +childCount,
+      star,
+      type,
+      mapLocation,
+      basePrice: +basePrice,
+      discount: +discount,
+      discountedPrice: price
     };
 
 
