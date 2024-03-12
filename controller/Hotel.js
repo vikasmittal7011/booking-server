@@ -156,6 +156,22 @@ export const getHotel = async (req, res, next) => {
   }
 }
 
+export const fetchOwnerHotels = async (req, res, next) => {
+  try {
+    const { id } = req.userData
+    const hotels = await Hotel.find({ owner: id })
+
+    if (!hotels) {
+      return next(new HttpError("Hotel not found", 404))
+    }
+
+    res.json({ success: true, hotels })
+
+  } catch (error) {
+    return next(new HttpError(error.message, 500))
+  }
+}
+
 export const deleteHotel = async (req, res, next) => {
   try {
     const { id } = req.params
