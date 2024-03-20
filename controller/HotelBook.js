@@ -5,43 +5,6 @@ dotenv.config();
 import { HotelBook } from "../models/HotelBook.js";
 import { instance } from "../utils/razorPayInstance.js";
 
-export const createHotelBook = async (req, res) => {
-
-  let {
-    contact, checkIn, checkOut, guest, hotel, totalAmount, paymentMethod
-  } = req.body;
-
-  const id = req.userData.id
-
-  try {
-    const newHotel = {
-      contact,
-      checkInDate: checkIn,
-      checkOutDate: checkOut,
-      numberOfGuest: +guest,
-      hotel,
-      user: id,
-      price: +totalAmount,
-      paymentMethod
-    };
-
-
-    const booking = await HotelBook.create(newHotel)
-
-    if (!booking) {
-      return res.json({ message: "Booking can't be done, plase try again lagter!!" })
-    }
-
-    res.json({
-      success: true, booking
-    })
-
-
-  } catch (err) {
-    return res.json({ message: err.message })
-  }
-}
-
 export const getBooks = async (req, res, next) => {
   try {
 
@@ -82,12 +45,12 @@ export const createPayment = async (req, res) => {
 }
 
 export const completePayment = async (req, res) => {
-  let {
-    contact, checkIn, checkOut, guest, hotel, totalAmount, paymentMethod
-  } = req.query;
-  const id = req.userData.id
-
   try {
+    let {
+      checkIn, checkOut, hotel, adultCount, childCount, price
+    } = req.query;
+    const id = req.userData.id
+
     const {
       razorpay_payment_id,
       razorpay_order_id,
@@ -101,32 +64,28 @@ export const completePayment = async (req, res) => {
     const isAuth = expectedsignature === razorpay_signature
 
     if (isAuth) {
-
-      const newHotel = {
-        contact,
-        checkInDate: checkIn,
-        checkOutDate: checkOut,
-        numberOfGuest: +guest,
+      const newBooking = {
+        checkIn,
+        checkOut,
         hotel,
         user: id,
-        price: +totalAmount,
-        paymentMethod,
-        paymentDone: true
+        price: +price,
+        childCount: +childCount || 0,
+        adultCount: +adultCount
       };
-
-      const booking = await HotelBook.create(newHotel)
+      const booking = await HotelBook.create(newBooking)
 
       if (!booking) {
-        return res.redirect("http://localhost:3000/booking-failer/" + "Booking can't be done, plase try again lagter!!")
+        return res.redirect("http://localhost:3000/failer/" + "Booking can't be done, plase try again lagter!!")
       }
 
-      return res.redirect("http://localhost:3000/booking-confirm/" + booking.id)
+      return res.redirect("http://localhost:3000/confirm/" + booking.id)
 
     } else {
-      return res.redirect("http://localhost:3000/booking-failer/" + "Booking can't be done, plase try again lagter!!")
+      return res.redirect("http://localhost:3000/failer/" + "Booking can't be done, plase try again lagter!!")
     }
 
   } catch (error) {
-    return res.json({ message: error.message })
+    return res.redirect("http://localhost:3000/failer/" + error.message)
   }
 }

@@ -1,17 +1,15 @@
 import { Schema, model } from "mongoose";
-const { ObjectId } = Schema
+const { ObjectId } = Schema;
 
 const HotelBookSechema = Schema(
     {
-        checkInDate: { type: String, required: true, },
-        checkOutDate: { type: String, required: true, },
-        numberOfGuest: { type: Number, required: true, },
-        contact: { type: Number, required: true, },
+        checkIn: { type: String, required: true, },
+        checkOut: { type: String, required: true, },
+        adultCount: { type: Number, required: true, },
+        childCount: { type: Number, required: true, },
         price: { type: Number, required: true, },
         hotel: { type: ObjectId, required: true, ref: "Hotel", },
         user: { type: ObjectId, required: true, ref: "User", },
-        paymentMethod: { type: String, required: true },
-        paymentDone: { type: Boolean, default: false }
     },
     { timestamps: true }
 );
