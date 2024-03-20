@@ -17,8 +17,7 @@ export const createHotel = async (req, res, next) => {
     name,
     discription,
     extraInfo,
-    street,
-    city,
+    addressLine,
     state,
     pin,
     country,
@@ -51,8 +50,7 @@ export const createHotel = async (req, res, next) => {
         name,
         discription,
         extraInfo,
-        street,
-        city,
+        addressLine,
         state,
         pin: +pin,
         country,
@@ -170,7 +168,7 @@ export const getHotels = async (req, res, next) => {
 export const getHotel = async (req, res, next) => {
   try {
     const { id } = req.params
-    const hotel = await Hotel.findById({ _id: id })
+    const hotel = await Hotel.findById({ _id: id }).populate({ path: "owner", select: "-password -passwordResetToken" })
 
     if (!hotel) {
       return next(new HttpError("Hotel not found", 404))
@@ -227,8 +225,6 @@ export const updateHotel = async (req, res, next) => {
     name,
     discription,
     extraInfo,
-    street,
-    city,
     state,
     pin,
     country,
@@ -240,6 +236,7 @@ export const updateHotel = async (req, res, next) => {
     basePrice,
     discount,
     mapLocation,
+    addressLine
   } = req.body;
   try {
 
@@ -268,8 +265,6 @@ export const updateHotel = async (req, res, next) => {
       name,
       discription,
       extraInfo,
-      street,
-      city,
       state,
       pin: +pin,
       country,
@@ -282,7 +277,8 @@ export const updateHotel = async (req, res, next) => {
       mapLocation,
       basePrice: +basePrice,
       discount: +discount,
-      discountedPrice: price
+      discountedPrice: price,
+      addressLine
     };
 
 
