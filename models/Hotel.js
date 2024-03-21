@@ -1,6 +1,19 @@
 import { Schema, model } from "mongoose";
 const { ObjectId } = Schema;
 
+const HotelBookSechema = Schema(
+    {
+        checkIn: { type: String, required: true, },
+        checkOut: { type: String, required: true, },
+        adultCount: { type: Number, required: true, },
+        childCount: { type: Number, required: true, },
+        price: { type: Number, required: true, },
+        hotel: { type: ObjectId, required: true, ref: "Hotel", },
+        user: { type: ObjectId, required: true, ref: "User", },
+    },
+    { timestamps: true }
+);
+
 const HotelSehema = Schema(
     {
         owner: { type: ObjectId, required: true, ref: "User", },
@@ -21,6 +34,7 @@ const HotelSehema = Schema(
         discount: { type: Number, required: true, default: 0 },
         discountedPrice: { type: Number, required: true, },
         mapLocation: { type: String, required: true, },
+        bookings: [HotelBookSechema]
     },
     { timestamps: true }
 );

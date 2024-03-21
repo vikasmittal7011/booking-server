@@ -2,29 +2,34 @@ import { createHmac } from 'crypto';
 import dotenv from 'dotenv';
 dotenv.config();
 
-import { HotelBook } from "../models/HotelBook.js";
 import { instance } from "../utils/razorPayInstance.js";
-
-export const getBooks = async (req, res, next) => {
-  try {
-
-    const booking = await HotelBook.find().sort({ createdAt: -1 }).populate("hotel user")
-
-    res.json({ success: true, booking })
-
-  } catch (error) {
-    return next(new HttpError(error.message, 500))
-  }
-}
+import { Hotel } from '../models/Hotel.js';
 
 export const getHotelBookByUser = async (req, res) => {
   try {
     const { id } = req.userData
-    const book = await HotelBook.find({ user: id }).sort({ createdAt: -1 }).populate("hotel user")
+    const bookings = await Hotel.find({ "bookings.user": id })
 
-    res.json({ success: true, booking: book })
+    const results = bookings.map((book) => {
+      const userBookings = book.bookings.filter(
+        (booking) => {
+          console.log(booking.user.toString(), req.userData.id)
+          return booking.user.toString() === req.userData.id
+        }
+      );
+
+      const hotelWithUserBookings = {
+        ...book.toObject(),
+        bookings: userBookings,
+      };
+
+      return hotelWithUserBookings;
+    });
+
+    res.json({ success: true, booking: results })
 
   } catch (error) {
+    console.log(error)
     return res.json({ message: "Internal Server Error" })
   }
 }
@@ -49,7 +54,13 @@ export const completePayment = async (req, res) => {
     let {
       checkIn, checkOut, hotel, adultCount, childCount, price
     } = req.query;
-    const id = req.userData.id
+    const id = req.userData.id;
+
+    let bookingHotel = await Hotel.findOne({ _id: hotel });
+
+    if (!bookingHotel) {
+      return res.redirect("http://localhost:3000/failer/" + "Hotel Not Found.")
+    }
 
     const {
       razorpay_payment_id,
@@ -73,13 +84,12 @@ export const completePayment = async (req, res) => {
         childCount: +childCount || 0,
         adultCount: +adultCount
       };
-      const booking = await HotelBook.create(newBooking)
 
-      if (!booking) {
-        return res.redirect("http://localhost:3000/failer/" + "Booking can't be done, plase try again lagter!!")
-      }
+      await bookingHotel.bookings.unshift(newBooking)
 
-      return res.redirect("http://localhost:3000/confirm/" + booking.id)
+      await bookingHotel.save()
+
+      return res.redirect("http://localhost:3000/confirm/" + bookingHotel.id)
 
     } else {
       return res.redirect("http://localhost:3000/failer/" + "Booking can't be done, plase try again lagter!!")

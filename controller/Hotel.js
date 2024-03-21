@@ -184,7 +184,10 @@ export const getHotel = async (req, res, next) => {
 export const fetchOwnerHotels = async (req, res, next) => {
   try {
     const { id } = req.userData
-    const hotels = await Hotel.find({ owner: id })
+    const hotels = await Hotel.find({ owner: id }).populate({
+      path: 'bookings.user',
+      select: "-password -passwordResetToken"
+    })
 
     if (!hotels) {
       return next(new HttpError("Hotel not found", 404))
@@ -199,12 +202,14 @@ export const fetchOwnerHotels = async (req, res, next) => {
 
 export const deleteHotel = async (req, res, next) => {
   try {
-    const { id } = req.params
-    const hotel = await Hotel.findByIdAndDelete({ _id: id })
+    const { id } = req.params;
+    const hotel = await Hotel.findById({ _id: id, owner: req.userData.id })
 
     if (!hotel) {
       return res.json({ message: "Hotel not found" })
     }
+
+    await Hotel.deleteOne({ _id: id });
 
     res.json({ success: true, hotel })
 
