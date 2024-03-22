@@ -38,7 +38,7 @@ app.use(cookieparser());
 app.use(
   cors({
     exposedHeaders: ["X-Total-Count"],
-    origin: ["http://localhost:3000", "http://127.0.0.1:5173"],
+    origin: ["http://localhost:3000", "http://127.0.0.1:5173", "https://vikeys-holidays.onrender.com"],
     credentials: true
   })
 );
@@ -65,9 +65,9 @@ app.use("/api/user", User);
 app.use("/api/hotel", Hotel);
 app.use("/api/booking", HotelBookRoute);
 
-// app.get("*", (req, res) => {
-//   res.sendFile(resolve("build", "index.html"));
-// });
+app.get("*", (req, res) => {
+  res.sendFile(resolve("build", "index.html"));
+});
 
 app.use((req, res, next) => {
   next(new HttpError("Not route found", 404));
