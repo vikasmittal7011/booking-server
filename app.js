@@ -17,7 +17,7 @@ import HotelBookRoute from "./routes/HotelBookRoute.js";
 import { fileURLToPath } from "url";
 import HttpError from "./models/http-error.js";
 
-process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
+// process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
 
 const PORT = process.env.PORT || 8080;
 
